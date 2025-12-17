@@ -1,4 +1,5 @@
 const Department = require("../../Models/departmentModel");
+const mongoose = require("mongoose");
 
 // CREATE
 const createDepartment = async (req, res) => {
@@ -7,14 +8,12 @@ const createDepartment = async (req, res) => {
     const savedDepartment = await department.save();
 
     res.status(201).json({
+      success: true,
       message: "Department created successfully",
       data: savedDepartment,
     });
   } catch (error) {
-    res.status(500).json({
-      message: "Failed to create department",
-      error: error.message,
-    });
+    res.status(500).json({ success: false, message: error.message });
   }
 };
 
@@ -24,14 +23,25 @@ const getDepartments = async (req, res) => {
     const departments = await Department.find();
 
     res.status(200).json({
+      success: true,
       message: "Departments fetched successfully",
       data: departments,
     });
   } catch (error) {
-    res.status(500).json({
-      message: "Failed to fetch departments",
-      error: error.message,
-    });
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// READ ONE
+const getDepartmentById = async (req, res) => {
+  try {
+    const department = await Department.findById(req.params.id);
+    if (!department) {
+      return res.status(404).json({ success: false, message: "Department not found" });
+    }
+    res.status(200).json({ success: true, message: "Department fetched", data: department });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
   }
 };
 
@@ -44,37 +54,51 @@ const updateDepartment = async (req, res) => {
       { new: true }
     );
 
+    if (!updated) {
+      return res.status(404).json({ success: false, message: "Department not found" });
+    }
+
     res.status(200).json({
+      success: true,
       message: "Department updated successfully",
       data: updated,
     });
   } catch (error) {
-    res.status(500).json({
-      message: "Failed to update department",
-      error: error.message,
-    });
+    res.status(500).json({ success: false, message: error.message });
   }
 };
 
 // DELETE
 const deleteDepartment = async (req, res) => {
   try {
-    await Department.findByIdAndDelete(req.params.id);
+    const id = req.params.id;
+    
+    // Check if ID exists and is not undefined/null/empty
+    if (!id || id === 'undefined' || id === 'null') {
+      return res.status(400).json({ success: false, message: "Department ID is required" });
+    }
 
-    res.status(200).json({
-      message: "Department deleted successfully",
-    });
+    // Validate ObjectId format
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ success: false, message: "Invalid department ID format" });
+    }
+
+    const deleted = await Department.findByIdAndDelete(id);
+
+    if (!deleted) {
+      return res.status(404).json({ success: false, message: "Department not found" });
+    }
+
+    res.status(200).json({ success: true, message: "Department deleted successfully" });
   } catch (error) {
-    res.status(500).json({
-      message: "Failed to delete department",
-      error: error.message,
-    });
+    res.status(500).json({ success: false, message: error.message });
   }
 };
 
 module.exports = {
   createDepartment,
   getDepartments,
+  getDepartmentById,
   updateDepartment,
   deleteDepartment,
 };

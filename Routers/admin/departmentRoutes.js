@@ -4,12 +4,14 @@ const router = express.Router();
 const {
   createDepartment,
   getDepartments,
+  getDepartmentById,
   updateDepartment,
   deleteDepartment,
 } = require("../../Controllers/admin/departmentController");
 
 router.post("/", createDepartment);
 router.get("/", getDepartments);
+router.get("/:id", getDepartmentById);
 router.put("/:id", updateDepartment);
 router.delete("/:id", deleteDepartment);
 

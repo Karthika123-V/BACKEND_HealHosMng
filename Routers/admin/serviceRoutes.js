@@ -4,12 +4,14 @@ const router = express.Router();
 const {
   createService,
   getServices,
+  getServiceById,
   updateService,
   deleteService,
 } = require("../../Controllers/admin/serviceController");
 
 router.post("/", createService);
 router.get("/", getServices);
+router.get("/:id", getServiceById);
 router.put("/:id", updateService);
 router.delete("/:id", deleteService);
 

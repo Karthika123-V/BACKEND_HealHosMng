@@ -4,20 +4,13 @@ const bcrypt = require("bcryptjs");
 // ===================== SIGNUP =====================
 const signupUser = async (req, res) => {
   try {
-    const { fullname, email, phone, password, confirmpass } = req.body;
+    const { fullname, email, phone, password, role } = req.body;
 
     // Check if email exists
     const userExists = await User.findOne({ email });
     if (userExists) {
       return res.status(400).json({
         message: "Email already registered",
-      });
-    }
-
-    // Check password match
-    if (password !== confirmpass) {
-      return res.status(400).json({
-        message: "Passwords do not match",
       });
     }
 
@@ -30,24 +23,25 @@ const signupUser = async (req, res) => {
       email,
       phone,
       password: hashedPassword,
+      role: role || "Patient"
     });
 
     const savedUser = await newUser.save();
 
     res.status(201).json({
-      message: "User Registered Successfully",
+      message: "User registered successfully",
       data: {
         id: savedUser._id,
         fullname: savedUser.fullname,
         email: savedUser.email,
         phone: savedUser.phone,
+        role: savedUser.role
       },
     });
 
   } catch (error) {
     res.status(500).json({
-      message: "Error while User Registration",
-      error: error.message,
+      message: error.message
     });
   }
 };
@@ -58,37 +52,37 @@ const loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    // 1. Check if email exists
+    // Check if email exists
     const user = await User.findOne({ email });
     if (!user) {
-      return res.status(400).json({
-        message: "Invalid email or password",
+      return res.status(404).json({
+        message: "User not found",
       });
     }
 
-    // 2. Compare password
+    // Compare password
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      return res.status(400).json({
-        message: "Invalid email or password",
+      return res.status(401).json({
+        message: "Invalid credentials",
       });
     }
 
-    // 3. Successful login
+    // Successful login
     res.status(200).json({
-      message: "Login Successful",
-      user: {
+      message: "Login successful",
+      data: {
         id: user._id,
         fullname: user.fullname,
         email: user.email,
-        phone: user.phone
+        phone: user.phone,
+        role: user.role
       }
     });
 
   } catch (error) {
     res.status(500).json({
-      message: "Error while Login",
-      error: error.message,
+      message: error.message
     });
   }
 };

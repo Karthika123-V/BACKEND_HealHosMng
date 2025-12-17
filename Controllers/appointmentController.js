@@ -22,6 +22,7 @@ const bookAppointment = async (req, res) => {
       dept,
       prefer_doctor,
       notes,
+      status: "Pending"
     });
 
     const savedAppointment = await newAppointment.save();
@@ -32,8 +33,7 @@ const bookAppointment = async (req, res) => {
     });
   } catch (error) {
     res.status(500).json({
-      message: "Error while booking appointment",
-      error: error.message,
+      message: error.message
     });
   }
 };
