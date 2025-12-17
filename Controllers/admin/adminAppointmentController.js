@@ -1,23 +1,28 @@
 const Appointment = require("../../Models/appointmentModel");
 const mongoose = require("mongoose");
 
-// CREATE APPOINTMENT
+// CREATE APPOINTMENT (Admin)
 const createAppointment = async (req, res) => {
   try {
-    const { patientName, doctor, department, date, status } = req.body;
+    const { patientName, doctor, department, date, time, email, phone, notes, status } = req.body;
 
-    if (!patientName || !doctor || !department || !date) {
+    // Validate required fields
+    if (!patientName || !department || !date) {
       return res.status(400).json({ 
         success: false, 
-        message: "Patient name, doctor, department, and date are required" 
+        message: "Patient name, department, and date are required" 
       });
     }
 
     const newAppointment = new Appointment({
       patientName,
-      doctor,
       department,
       date,
+      doctor: doctor || "Not Assigned",
+      time: time || '',
+      email: email || '',
+      phone: phone || '',
+      notes: notes || '',
       status: status || "Pending"
     });
 
@@ -28,7 +33,12 @@ const createAppointment = async (req, res) => {
       data: savedAppointment 
     });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    console.error("Admin create appointment error:", error);
+    res.status(500).json({ 
+      success: false, 
+      message: error.message,
+      error: error.name === 'ValidationError' ? error.errors : undefined
+    });
   }
 };
 
