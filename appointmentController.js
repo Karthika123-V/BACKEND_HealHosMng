@@ -23,16 +23,16 @@ const bookAppointment = async (req, res) => {
 
     // Map public form → admin-friendly schema
     const newAppointment = new Appointment({
-  patientName: fullname,
-  email,
-  phone,
-  department: dept,
-  doctor: prefer_doctor || "Not Assigned",
-  date: prefer_date,
-  time: prefer_time,
-  notes,
-  status: "Pending"
-});
+      patientName: fullname,
+      email,
+      phone,
+      department: dept,
+      doctor: prefer_doctor || "Not Assigned",
+      date: prefer_date,
+      time: prefer_time,
+      notes,
+      status: "Pending"
+    });
 
 
     const savedAppointment = await newAppointment.save();
@@ -43,11 +43,14 @@ const bookAppointment = async (req, res) => {
       data: savedAppointment,
     });
   } catch (error) {
-  console.error("Booking error:", error.message);
-  res.status(500).json({
-    message: "Failed to book appointment",
-    error: error.message
-  });
+    console.error("Booking error:", error.message);
+    res.status(500).json({
+      success: false,
+      message: "Failed to book appointment",
+      error: error.message
+    });
+  }
+};
 }
 
   };
