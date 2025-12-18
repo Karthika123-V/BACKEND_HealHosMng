@@ -2,30 +2,18 @@ const multer = require("multer");
 const { CloudinaryStorage } = require("multer-storage-cloudinary");
 const cloudinary = require("cloudinary").v2;
 
-// Cloudinary config
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
   api_key: process.env.CLOUDINARY_API_KEY,
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-// Cloudinary storage
 const storage = new CloudinaryStorage({
   cloudinary,
   params: {
-    folder: "doctors", // Cloudinary folder name
+    folder: "doctors",
     allowed_formats: ["jpg", "jpeg", "png"],
-    public_id: (req, file) => {
-      const uniqueName = `doctor-${Date.now()}`;
-      return uniqueName;
-    },
   },
 });
 
-// Multer instance
-const upload = multer({
-  storage,
-  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
-});
-
-module.exports = upload;
+module.exports = multer({ storage });
