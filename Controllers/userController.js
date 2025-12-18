@@ -6,20 +6,19 @@ const signupUser = async (req, res) => {
   try {
     const { fullname, email, phone, password, role } = req.body;
 
-    // Check if email exists
-    const userExists = await User.findOne({ email });
-    if (userExists) {
-      return res.status(400).json({
-        message: "Email already registered",
-      });
+    if (!fullname || !email || !password) {
+      return res.status(400).json({ message: "Required fields missing" });
     }
 
-    // Hash the password
+    const userExists = await User.findOne({ email });
+    if (userExists) {
+      return res.status(400).json({ message: "Email already registered" });
+    }
+
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Save new user
     const newUser = new User({
-      fullname,
+      name: fullname,            // ✅ FIX
       email,
       phone,
       password: hashedPassword,
@@ -32,17 +31,15 @@ const signupUser = async (req, res) => {
       message: "User registered successfully",
       data: {
         id: savedUser._id,
-        fullname: savedUser.fullname,
+        name: savedUser.name,
         email: savedUser.email,
         phone: savedUser.phone,
         role: savedUser.role
-      },
+      }
     });
 
   } catch (error) {
-    res.status(500).json({
-      message: error.message
-    });
+    res.status(500).json({ message: error.message });
   }
 };
 
